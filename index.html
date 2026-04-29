@@ -1,54 +1,49 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Test Koneksi Supabase</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form Supabase</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Test Input Peminjaman</h2>
-    <form id="formTes">
-        <input type="text" id="barang" placeholder="Nama Barang" required>
-        <button type="submit" id="btnSimpan">Kirim ke Supabase</button>
+  <div class="container">
+    <h1>Form Kontak</h1>
+
+    <form id="formKontak">
+
+      <input
+        type="text"
+        id="nama"
+        placeholder="Nama"
+        required
+      >
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Email"
+        required
+      >
+
+      <textarea
+        id="pesan"
+        placeholder="Pesan"
+        rows="5"
+      ></textarea>
+
+      <button type="submit">
+        Kirim
+      </button>
+
     </form>
 
     <p id="status"></p>
+  </div>
 
-    <script>
-        // 1. Inisialisasi Supabase
-        const SUPABASE_URL = 'https://gyiucoognxykakksrulo.supabase.co/';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5aXVjb29nbnh5a2Fra3NydWxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNjQ0MDQsImV4cCI6MjA5Mjg0MDQwNH0.Ht_yQbty5AaWYZWPp7sLWwIRDrmNs-LPot0NnVi3VIU';
-        // Gunakan nama variabel 'supabaseClient' agar tidak bentrok dengan library
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script type="module" src="app.js"></script>
 
-// Kemudian saat memanggil fungsinya di bawah, sesuaikan juga:
-const { data, error } = await supabaseClient
-    .from('test_koneksi')
-    .insert([{ nama_barang: namaBarang }]);
-
-        const form = document.getElementById('formTes');
-        const statusP = document.getElementById('status');
-
-        // 2. Logika Pengiriman Data
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            statusP.innerText = "Sedang mengirim...";
-            
-            const namaBarang = document.getElementById('barang').value;
-
-            const { data, error } = await supabase
-                .from('test_koneksi') // Nama tabel di Supabase
-                .insert([{ nama_barang: namaBarang }]);
-
-            if (error) {
-                statusP.innerText = "Error: " + error.message;
-                console.error(error);
-            } else {
-                statusP.innerText = "Berhasil! Cek dashboard Supabase kamu.";
-                form.reset();
-            }
-        });
-    </script>
 </body>
 </html>
