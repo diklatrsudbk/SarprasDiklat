@@ -21,44 +21,71 @@ async function fetchData() {
   renderTable(data)
 }
 
-// 2. Fungsi Menampilkan ke Tabel
+// 2. Fungsi Menampilkan ke Tabel (Diselaraskan dengan UI Baru)
 function renderTable(data) {
   tableBody.innerHTML = ''
   data.forEach(item => {
     const row = document.createElement('tr')
+    
+    // Logika warna badge status
+    const statusClass = item.status ? item.status.toLowerCase() : 'request';
+    
     row.innerHTML = `
       <td>
         <strong>${item.nama}</strong><br>
-        <small>${item.unit} - ${item.institusi || ''}</small>
+        <small style="color: #64748b;">${item.unit} ${item.institusi ? ' - ' + item.institusi : ''}</small>
       </td>
-      <td>${item.ruangan}</td>
+      <td><span style="font-weight: 500;">${item.ruangan}</span></td>
       <td><small>${item.tanggal_info}</small></td>
-      <td>${item.jam_mulai} - ${item.jam_selesai}</td>
-      <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
+      <td>${item.jam_mulai.substring(0,5)} - ${item.jam_selesai.substring(0,5)}</td>
       <td>
-        ${item.status === 'Request' ? `
-          <button class="btn-action btn-approve" onclick="updateStatus('${item.id}', 'Booking')">Approve</button>
-          <button class="btn-action btn-cancel" onclick="updateStatus('${item.id}', 'Cancel')">Reject</button>
-        ` : `<small>No Action</small>`}
+        <span class="status-badge status-${statusClass}">${item.status}</span>
+      </td>
+      <td>
+        <div class="action-group">
+          ${item.status === 'Request' ? `
+            <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')" title="Approve">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')" title="Reject">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          ` : `<small style="color: #cbd5e1;">Selesai</small>`}
+        </div>
       </td>
     `
     tableBody.appendChild(row)
   })
 }
 
-// 3. Fungsi Update Status
+// 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
 window.updateStatus = async (id, newStatus) => {
+  // Konfirmasi sederhana sebelum eksekusi
+  const konfirmasi = confirm(`Ubah status menjadi ${newStatus}?`);
+  if (!konfirmasi) return;
+
   const { error } = await supabase
     .from('peminjaman_ruangan')
     .update({ status: newStatus })
     .eq('id', id)
 
   if (error) {
-    alert('Gagal update status')
+    alert('Gagal update status: ' + error.message)
   } else {
-    fetchData() // Refresh tabel
+    // Tidak perlu panggil fetchData manual jika Real-time aktif, 
+    // tapi untuk amannya tetap panggil jika koneksi lambat.
+    fetchData() 
   }
 }
 
-// Jalankan saat halaman load
+// 4. FITUR REAL-TIME: Update otomatis jika ada data baru/berubah
+supabase
+  .channel('perubahan-data')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'peminjaman_ruangan' }, () => {
+    console.log('Ada perubahan data di database, menyegarkan tabel...');
+    fetchData();
+  })
+  .subscribe()
+
+// Jalankan saat halaman pertama kali dibuka
 fetchData()
