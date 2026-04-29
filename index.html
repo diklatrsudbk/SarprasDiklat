@@ -19,7 +19,13 @@
         // 1. Inisialisasi Supabase
         const SUPABASE_URL = 'https://gyiucoognxykakksrulo.supabase.co/';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5aXVjb29nbnh5a2Fra3NydWxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNjQ0MDQsImV4cCI6MjA5Mjg0MDQwNH0.Ht_yQbty5AaWYZWPp7sLWwIRDrmNs-LPot0NnVi3VIU';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Gunakan nama variabel 'supabaseClient' agar tidak bentrok dengan library
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Kemudian saat memanggil fungsinya di bawah, sesuaikan juga:
+const { data, error } = await supabaseClient
+    .from('test_koneksi')
+    .insert([{ nama_barang: namaBarang }]);
 
         const form = document.getElementById('formTes');
         const statusP = document.getElementById('status');
