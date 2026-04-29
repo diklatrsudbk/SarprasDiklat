@@ -30,6 +30,11 @@ function hitungDurasi() {
     }
   }
 }
+flatpickr("#tanggal_info", {
+    mode: "multiple", // Ini kuncinya untuk bisa pilih banyak tanggal
+    dateFormat: "d-m-Y",
+    conjunction: ", ", // Pemisah antar tanggal saat disimpan
+});
 
 // Event listener untuk update durasi saat input jam berubah
 document.getElementById('jam_mulai').addEventListener('change', hitungDurasi)
