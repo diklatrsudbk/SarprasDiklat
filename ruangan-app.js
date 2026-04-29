@@ -3,6 +3,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabaseUrl = 'https://sghdzubfevfeajigxwaq.supabase.co/'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnaGR6dWJmZXZmZWFqaWd4d2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTA0NjMsImV4cCI6MjA5Mjk4NjQ2M30.lpO8vjFur4SwasKYiutJX5aW3MbSWxH1d7u3JFzgaXQ'
 const supabase = createClient(supabaseUrl, supabaseKey)
+const ADMIN_PASSWORD = "diklatrsudbk";
 
 const tableBody = document.getElementById('table-body')
 
@@ -60,21 +61,30 @@ function renderTable(data) {
 
 // 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
 window.updateStatus = async (id, newStatus) => {
-  // Konfirmasi sederhana sebelum eksekusi
-  const konfirmasi = confirm(`Ubah status menjadi ${newStatus}?`);
-  if (!konfirmasi) return;
+  // 1. Minta Password
+  const inputPass = prompt(`Konfirmasi ${newStatus}. Masukkan Password Admin:`);
 
+  // 2. Cek apakah password kosong atau dibatalkan
+  if (inputPass === null) return; 
+
+  // 3. Validasi Password
+  if (inputPass !== ADMIN_PASSWORD) {
+    alert("❌ Password Salah! Anda tidak memiliki akses.");
+    return;
+  }
+
+  // 4. Jika password benar, lanjutkan proses ke Supabase
   const { error } = await supabase
     .from('peminjaman_ruangan')
     .update({ status: newStatus })
-    .eq('id', id)
+    .eq('id', id);
 
   if (error) {
-    alert('Gagal update status: ' + error.message)
+    alert('Gagal update status: ' + error.message);
   } else {
-    // Tidak perlu panggil fetchData manual jika Real-time aktif, 
-    // tapi untuk amannya tetap panggil jika koneksi lambat.
-    fetchData() 
+    // Beri notifikasi sukses dengan gaya yang lebih manis
+    console.log(`Status berhasil diubah ke: ${newStatus}`);
+    fetchData(); // Segarkan tabel
   }
 }
 
