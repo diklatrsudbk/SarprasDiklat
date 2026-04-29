@@ -24,69 +24,68 @@ async function fetchData() {
 
 // 2. Fungsi Menampilkan ke Tabel (Diselaraskan dengan UI Baru)
 function renderTable(data) {
-  tableBody.innerHTML = ''
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAdminMode = urlParams.get('mode') === 'admin';
+
+  tableBody.innerHTML = '';
   data.forEach(item => {
-    const row = document.createElement('tr')
-    
-    // Logika warna badge status
+    const row = document.createElement('tr');
     const statusClass = item.status ? item.status.toLowerCase() : 'request';
     
     row.innerHTML = `
       <td>
         <strong>${item.nama}</strong><br>
-        <small style="color: #64748b;">${item.unit} ${item.institusi ? ' - ' + item.institusi : ''}</small>
+        <small style="color: #64748b;">${item.unit}</small>
       </td>
-      <td><span style="font-weight: 500;">${item.ruangan}</span></td>
+      <td>${item.ruangan}</td>
       <td><small>${item.tanggal_info}</small></td>
-      <td>${item.jam_mulai.substring(0,5)} - ${item.jam_selesai.substring(0,5)}</td>
       <td>
         <span class="status-badge status-${statusClass}">${item.status}</span>
       </td>
       <td>
         <div class="action-group">
-          ${item.status === 'Request' ? `
-            <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')" title="Approve">
-              <i class="fa-solid fa-check"></i>
-            </button>
-            <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')" title="Reject">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          ` : `<small style="color: #cbd5e1;">Selesai</small>`}
+          ${isAdminMode ? `
+            ${item.status === 'Request' ? `
+              <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')">Approve</button>
+              <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')">Reject</button>
+            ` : ''}
+
+            ${item.status === 'Booking' ? `
+              <button class="btn" style="background:#0ea5e9; color:white;" onclick="pemicuUpload('${item.id}')">
+                <i class="fa-solid fa-camera"></i> Confirm Pemakaian
+              </button>
+              <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')">Cancel</button>
+            ` : ''}
+
+            ${(item.status === 'Selesai' || item.status === 'Cancel') ? `
+              <small style="color:#94a3b8;">Selesai</small>
+            ` : ''}
+          ` : `<small style="color:#cbd5e1;">View Only</small>`}
         </div>
       </td>
-    `
-    tableBody.appendChild(row)
-  })
+    `;
+    tableBody.appendChild(row);
+  });
 }
 
 // 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
 window.updateStatus = async (id, newStatus) => {
-  // 1. Minta Password
-  const inputPass = prompt(`Konfirmasi ${newStatus}. Masukkan Password Admin:`);
-
-  // 2. Cek apakah password kosong atau dibatalkan
+  const inputPass = prompt(`Masukkan Password Admin untuk mengubah status ke ${newStatus}:`);
+  
   if (inputPass === null) return; 
-
-  // 3. Validasi Password
   if (inputPass !== ADMIN_PASSWORD) {
-    alert("❌ Password Salah! Anda tidak memiliki akses.");
+    alert("❌ Password Salah!");
     return;
   }
 
-  // 4. Jika password benar, lanjutkan proses ke Supabase
   const { error } = await supabase
     .from('peminjaman_ruangan')
     .update({ status: newStatus })
     .eq('id', id);
 
-  if (error) {
-    alert('Gagal update status: ' + error.message);
-  } else {
-    // Beri notifikasi sukses dengan gaya yang lebih manis
-    console.log(`Status berhasil diubah ke: ${newStatus}`);
-    fetchData(); // Segarkan tabel
-  }
-}
+  if (error) alert(error.message);
+  else fetchData();
+};
 
 // 4. FITUR REAL-TIME: Update otomatis jika ada data baru/berubah
 supabase
