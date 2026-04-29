@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Sarpras</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root { --primary: #1e40af; --success: #16a34a; --warning: #ca8a04; --danger: #dc2626; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 30px; }
+    .admin-container { max-width: 1200px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    h2 { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+    th { background: #f1f5f9; padding: 15px; text-align: left; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+    .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+    .status-request { background: #fef9c3; color: #854d0e; }
+    .status-booking { background: #dcfce7; color: #166534; }
+    .btn-action { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+    .btn-approve { background: var(--success); color: white; }
+    .btn-cancel { background: var(--danger); color: white; margin-left: 5px; }
+    .btn-action:hover { opacity: 0.8; }
+  </style>
+</head>
+<body>
+
+<div class="admin-container">
+  <h2><i class="fa-solid fa-user-shield"></i> Daftar Permohonan Ruangan</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Peminjam</th>
+        <th>Ruangan</th>
+        <th>Tanggal</th>
+        <th>Waktu</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      </tbody>
+  </table>
+</div>
+
+<script type="module" src="admin-app.js"></script>
+</body>
+</html>
