@@ -31,9 +31,25 @@ function hitungDurasi() {
   }
 }
 flatpickr("#tanggal_info", {
-    mode: "multiple", // Ini kuncinya untuk bisa pilih banyak tanggal
+    mode: "multiple",
     dateFormat: "d-m-Y",
-    conjunction: ", ", // Pemisah antar tanggal saat disimpan
+    conjunction: ", ",
+    onChange: function(selectedDates, dateStr, instance) {
+        const container = document.getElementById('preview_tanggal');
+        container.innerHTML = ''; // Kosongkan dulu
+
+        selectedDates.forEach(date => {
+            const day = date.getDate().toString().padStart(2, '0');
+            const monthYear = instance.formatDate(date, " M Y");
+
+            // Buat elemen visual
+            const tag = document.createElement('span');
+            tag.style.cssText = "background:#e3f2fd; padding:5px 10px; border-radius:15px; font-size:12px; border:1px solid #bbdefb;";
+            tag.innerHTML = `<strong style="font-size:14px; color:#007bff;">${day}</strong>${monthYear}`;
+
+            container.appendChild(tag);
+        });
+    }
 });
 
 // Event listener untuk update durasi saat input jam berubah
