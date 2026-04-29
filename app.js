@@ -5,92 +5,92 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 const form = document.getElementById('formPinjam')
-const statusText = document.getElementById('status')
-const displayDurasi = document.getElementById('display_durasi')
+const statusText = document.getElementById('status-message')
+const displayDurasi = document.getElementById('val_durasi')
 
-// Fungsi Hitung Durasi
-function hitungDurasi() {
-  const mulai = document.getElementById('jam_mulai').value
-  const selesai = document.getElementById('jam_selesai').value
-
-  if (mulai && selesai) {
-    const t1 = new Date(`2026-01-01T${mulai}`)
-    const t2 = new Date(`2026-01-01T${selesai}`)
-    
-    if (t2 > t1) {
-      const diffMs = t2 - t1
-      const diffHrs = Math.floor(diffMs / 3600000)
-      const diffMins = Math.round(((diffMs % 3600000) / 60000))
-      const hasil = `${diffHrs} Jam ${diffMins} Menit`
-      displayDurasi.innerText = `Durasi: ${hasil}`
-      return hasil
-    } else {
-      displayDurasi.innerText = "Jam selesai harus setelah jam mulai"
-      return "0 Jam 0 Menit"
-    }
-  }
-}
+// 1. Inisialisasi Flatpickr (Multi-Date)
 flatpickr("#tanggal_info", {
     mode: "multiple",
     dateFormat: "d-m-Y",
     conjunction: ", ",
+    locale: "id", // Pastikan sudah panggil script ID di HTML
     onChange: function(selectedDates, dateStr, instance) {
-        const container = document.getElementById('preview_tanggal');
-        container.innerHTML = ''; // Kosongkan dulu
-
-        selectedDates.forEach(date => {
-            const day = date.getDate().toString().padStart(2, '0');
-            const monthYear = instance.formatDate(date, " M Y");
-
-            // Buat elemen visual
-            const tag = document.createElement('span');
-            tag.style.cssText = "background:#e3f2fd; padding:5px 10px; border-radius:15px; font-size:12px; border:1px solid #bbdefb;";
-            tag.innerHTML = `<strong style="font-size:14px; color:#007bff;">${day}</strong>${monthYear}`;
-
-            container.appendChild(tag);
-        });
+        // Bagian preview tanggal opsional jika kamu ingin pakai tag visual
+        console.log("Tanggal terpilih:", dateStr);
     }
 });
 
-// Event listener untuk update durasi saat input jam berubah
+// 2. Fungsi Hitung Durasi
+function hitungDurasi() {
+    const mulai = document.getElementById('jam_mulai').value
+    const selesai = document.getElementById('jam_selesai').value
+
+    if (mulai && selesai) {
+        const t1 = new Date(`2026-01-01T${mulai}`)
+        const t2 = new Date(`2026-01-01T${selesai}`)
+        
+        if (t2 > t1) {
+            const diffMs = t2 - t1
+            const diffHrs = Math.floor(diffMs / 3600000)
+            const diffMins = Math.round(((diffMs % 3600000) / 60000))
+            const hasil = `${diffHrs} Jam ${diffMins} Menit`
+            displayDurasi.innerText = hasil
+            return hasil
+        } else {
+            displayDurasi.innerText = "Jam tidak valid"
+            return "0 Jam 0 Menit"
+        }
+    }
+    return "-"
+}
+
+// Event listener jam
 document.getElementById('jam_mulai').addEventListener('change', hitungDurasi)
 document.getElementById('jam_selesai').addEventListener('change', hitungDurasi)
 
+// 3. Submit Form
 form.addEventListener('submit', async (e) => {
-  e.preventDefault()
-  statusText.innerText = 'Memproses...'
-  
-  const durasiFinal = hitungDurasi()
+    e.preventDefault()
+    
+    // Animasi tombol sedang loading (opsional)
+    const btn = document.getElementById('btnKirim');
+    btn.disabled = true;
+    btn.innerText = 'Mengirim...';
 
-  const payload = {
-    unit: document.getElementById('unit').value,
-    nama: document.getElementById('nama').value,
-    identitas: document.getElementById('identitas').value,
-    institusi: document.getElementById('institusi').value,
-    jurusan_divisi: document.getElementById('jurusan_divisi').value,
-    nomor_telp: document.getElementById('nomor_telp').value,
-    judul_acara: document.getElementById('judul_acara').value,
-    jumlah_peserta: parseInt(document.getElementById('jumlah_peserta').value),
-    ruangan: document.getElementById('ruangan').value,
-    tanggal_info: document.getElementById('tanggal_info').value,
-    jam_mulai: document.getElementById('jam_mulai').value,
-    jam_selesai: document.getElementById('jam_selesai').value,
-    durasi: durasiFinal,
-    status: 'Request'
-  }
+    const durasiFinal = hitungDurasi()
 
-  const { error } = await supabase
-    .from('peminjaman_ruangan')
-    .insert([payload])
+    const payload = {
+        unit: document.getElementById('unit').value,
+        nama: document.getElementById('nama').value,
+        identitas: document.getElementById('identitas').value,
+        institusi: document.getElementById('institusi').value,
+        jurusan_divisi: document.getElementById('jurusan_divisi').value,
+        nomor_telp: document.getElementById('nomor_telp').value,
+        judul_acara: document.getElementById('judul_acara').value,
+        jumlah_peserta: parseInt(document.getElementById('jumlah_peserta').value),
+        ruangan: document.getElementById('ruangan').value,
+        tanggal_info: document.getElementById('tanggal_info').value,
+        jam_mulai: document.getElementById('jam_mulai').value,
+        jam_selesai: document.getElementById('jam_selesai').value,
+        durasi: durasiFinal,
+        status: 'Request'
+    }
 
-  if (error) {
-    console.error(error)
-    statusText.innerText = 'Gagal: ' + error.message
-    statusText.style.color = 'red'
-  } else {
-    statusText.innerText = 'Berhasil Terkirim! Mohon tunggu konfirmasi.'
-    statusText.style.color = 'green'
-    form.reset()
-    displayDurasi.innerText = "Durasi: -"
-  }
+    const { error } = await supabase
+        .from('peminjaman_ruangan')
+        .insert([payload])
+
+    if (error) {
+        statusText.innerText = '❌ Gagal: ' + error.message
+        statusText.style.color = '#dc2626'
+        btn.disabled = false;
+        btn.innerText = 'Kirim Permohonan';
+    } else {
+        statusText.innerText = '✅ Berhasil Terkirim! Admin akan segera memproses.'
+        statusText.style.color = '#16a34a'
+        form.reset()
+        displayDurasi.innerText = "-"
+        btn.disabled = false;
+        btn.innerHTML = '<span>Kirim Permohonan</span> <i class="fa-solid fa-paper-plane"></i>';
+    }
 })
