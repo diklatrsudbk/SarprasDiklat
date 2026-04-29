@@ -1,67 +1,168 @@
+:root {
+  --primary: #1e40af;
+  --primary-light: #eff6ff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --bg: #f8fafc;
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+}
+
 body {
-  background: #eef2f3;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  line-height: 1.6;
+  padding: 40px 20px;
 }
 
-.container {
-  width: 100%;
-  max-width: 600px;
-  background: white;
-  margin: auto;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+.form-wrapper {
+  max-width: 650px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  padding: 40px;
 }
 
-.section {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+.form-header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-h1 { text-align: center; color: #333; margin-bottom: 25px; }
-h3 { font-size: 16px; color: #007bff; margin-bottom: 15px; }
-
-form { display: flex; flex-direction: column; gap: 12px; }
-
-input, select, textarea {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  width: 100%;
+.form-header i {
+  font-size: 3rem;
+  color: var(--primary);
+  margin-bottom: 15px;
 }
 
-.time-group {
-  display: grid;
-  grid-template-columns: auto 1fr auto 1fr;
+.form-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.form-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.form-section {
+  margin-bottom: 35px;
+}
+
+.section-title {
+  display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-light);
 }
 
-#display_durasi {
-  font-size: 13px;
-  color: #666;
-  font-style: italic;
+.section-title i {
+  color: var(--primary);
+}
+
+.section-title span {
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: #fcfcfc;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+}
+
+#tanggal_info {
+  font-weight: bold; /* Bold khusus tanggal seperti permintaanmu */
+  cursor: pointer;
+  color: var(--primary);
+}
+
+#duration-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 5px;
 }
 
 button {
-  padding: 15px;
-  border: none;
-  background: #007bff;
+  width: 100%;
+  background: var(--primary);
   color: white;
-  border-radius: 8px;
-  font-weight: bold;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s, background 0.2s;
+  margin-top: 20px;
 }
 
-button:hover { background: #0056b3; }
+button:hover {
+  background: #1e3a8a;
+  transform: translateY(-1px);
+}
 
-#status {
-  margin-top: 20px;
+button:active {
+  transform: translateY(0);
+}
+
+#status-message {
+  margin-top: 25px;
   text-align: center;
-  font-weight: bold;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+/* Responsif Mobile */
+@media (max-width: 500px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .form-wrapper { padding: 25px; }
 }
