@@ -3,47 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Form Supabase</title>
-
+  <title>Form Peminjaman Ruangan</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="container">
-    <h1>Form Kontak</h1>
+    <h1>Peminjaman Ruangan</h1>
 
-    <form id="formKontak">
+    <form id="formPinjam">
+      <div class="section">
+        <h3>Identitas Peminjam</h3>
+        <select id="unit" required>
+          <option value="" disabled selected>Pilih Unit</option>
+          <option value="Karyawan">Karyawan</option>
+          <option value="Peserta Didik">Peserta Didik</option>
+          <option value="Instansi Luar">Instansi Luar</option>
+        </select>
+        <input type="text" id="nama" placeholder="Nama Lengkap" required>
+        <input type="text" id="identitas" placeholder="NIM / NIP / NIK" required>
+        <input type="text" id="institusi" placeholder="Nama Institusi (Contoh: RSUD BK)">
+        <input type="text" id="jurusan_divisi" placeholder="Jurusan / Divisi / Instalasi">
+        <input type="tel" id="nomor_telp" placeholder="No. WhatsApp (Aktif)" required>
+      </div>
 
-      <input
-        type="text"
-        id="nama"
-        placeholder="Nama"
-        required
-      >
+      <div class="section">
+        <h3>Detail Peminjaman</h3>
+        <input type="text" id="judul_acara" placeholder="Judul Acara" required>
+        <input type="number" id="jumlah_peserta" placeholder="Estimasi Jumlah Peserta" required>
+        
+        <select id="ruangan" required>
+          <option value="" disabled selected>Pilih Ruangan</option>
+          <optgroup label="Aula">
+            <option value="Aula 1">Aula 1</option>
+            <option value="Aula 2">Aula 2</option>
+            <option value="Aula 3">Aula 3</option>
+            <option value="Aula 1-2">Aula 1-2</option>
+            <option value="Aula 2-3">Aula 2-3</option>
+            <option value="Aula 1-3">Aula 1-3</option>
+          </optgroup>
+          <optgroup label="Lantai 3">
+            <option value="LT. 3 Ruang Belajar">LT. 3 Ruang Belajar</option>
+            <option value="LT. 3 Ruang Rapat">LT. 3 Ruang Rapat</option>
+          </optgroup>
+          <optgroup label="Lantai 8">
+            <option value="801">Lantai 8, 801</option>
+            <option value="802">Lantai 8, 802</option>
+            <option value="803">Lantai 8, 803</option>
+            <option value="804">Lantai 8, 804</option>
+            <option value="805">Lantai 8, 805</option>
+            <option value="806">Lantai 8, 806</option>
+            <option value="807">Lantai 8, 807</option>
+            <option value="808">Lantai 8, 808</option>
+            <option value="809">Lantai 8, 809</option>
+          </optgroup>
+          <option value="Request">Lainnya (Request)</option>
+        </select>
 
-      <input
-        type="email"
-        id="email"
-        placeholder="Email"
-        required
-      >
+        <input type="text" id="tanggal_info" placeholder="Tanggal (Contoh: 1, 3-5, 10)" required>
+        
+        <div class="time-group">
+          <label>Mulai</label>
+          <input type="time" id="jam_mulai" required>
+          <label>Selesai</label>
+          <input type="time" id="jam_selesai" required>
+        </div>
+        <p id="display_durasi">Durasi: -</p>
+      </div>
 
-      <textarea
-        id="pesan"
-        placeholder="Pesan"
-        rows="5"
-      ></textarea>
-
-      <button type="submit">
-        Kirim
-      </button>
-
+      <button type="submit" id="btnKirim">Kirim Permohonan</button>
     </form>
 
     <p id="status"></p>
   </div>
 
   <script type="module" src="app.js"></script>
-
 </body>
 </html>
