@@ -4,132 +4,88 @@ const supabaseUrl = 'https://sghdzubfevfeajigxwaq.supabase.co/'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnaGR6dWJmZXZmZWFqaWd4d2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTA0NjMsImV4cCI6MjA5Mjk4NjQ2M30.lpO8vjFur4SwasKYiutJX5aW3MbSWxH1d7u3JFzgaXQ'
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-const ADMIN_PASSWORD = "diklatrsudbk";
-const tableBody = document.getElementById('table-body');
-let activeId = null;
+const tableBody = document.getElementById('table-body')
 
+// 1. Fungsi Mengambil Data
 async function fetchData() {
   const { data, error } = await supabase
     .from('peminjaman_ruangan')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
 
-  if (error) return console.error('Error:', error);
-  renderTable(data);
+  if (error) {
+    console.error('Error fetch:', error)
+    return
+  }
+
+  renderTable(data)
 }
 
+// 2. Fungsi Menampilkan ke Tabel (Diselaraskan dengan UI Baru)
 function renderTable(data) {
-  tableBody.innerHTML = '';
-  
+  tableBody.innerHTML = ''
   data.forEach(item => {
-    const row = document.createElement('tr');
+    const row = document.createElement('tr')
+    
+    // Logika warna badge status
     const statusClass = item.status ? item.status.toLowerCase() : 'request';
-    const jamMulai = item.jam_mulai ? item.jam_mulai.substring(0, 5) : '--:--';
-    const jamSelesai = item.jam_selesai ? item.jam_selesai.substring(0, 5) : '--:--';
-
+    
     row.innerHTML = `
       <td>
         <strong>${item.nama}</strong><br>
-        <small style="color: #64748b;">${item.unit}</small>
+        <small style="color: #64748b;">${item.unit} ${item.institusi ? ' - ' + item.institusi : ''}</small>
       </td>
-      <td>${item.ruangan}</td>
+      <td><span style="font-weight: 500;">${item.ruangan}</span></td>
       <td><small>${item.tanggal_info}</small></td>
-      <td style="font-weight:500;">${jamMulai} - ${jamSelesai}</td>
+      <td>${item.jam_mulai.substring(0,5)} - ${item.jam_selesai.substring(0,5)}</td>
       <td>
         <span class="status-badge status-${statusClass}">${item.status}</span>
       </td>
       <td>
         <div class="action-group">
           ${item.status === 'Request' ? `
-            <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')">
-              <i class="fa-solid fa-check"></i> Approve
+            <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')" title="Approve">
+              <i class="fa-solid fa-check"></i>
             </button>
-            <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')">
-              <i class="fa-solid fa-x"></i> Reject
+            <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')" title="Reject">
+              <i class="fa-solid fa-xmark"></i>
             </button>
-          ` : ''}
-
-          ${item.status === 'Booking' ? `
-            <button class="btn btn-confirm" onclick="pemicuUpload('${item.id}')">
-              <i class="fa-solid fa-camera"></i> Confirm
-            </button>
-            <button class="btn btn-cancel" onclick="updateStatus('${item.id}', 'Cancel')">
-              Cancel
-            </button>
-          ` : ''}
-
-          ${(item.status === 'Selesai' || item.status === 'Cancel') ? `
-            <small style="color:#94a3b8; font-style:italic;">Data Terarsip</small>
-          ` : ''}
+          ` : `<small style="color: #cbd5e1;">Selesai</small>`}
         </div>
       </td>
-    `;
-    tableBody.appendChild(row);
-  });
+    `
+    tableBody.appendChild(row)
+  })
 }
 
-// 3. Update Status (DIPROTEKSI PASSWORD untuk Approve/Reject/Cancel)
+// 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
 window.updateStatus = async (id, newStatus) => {
-  const inputPass = prompt(`Masukkan Password Admin untuk aksi ${newStatus}:`);
-  if (inputPass === null) return; 
-  if (inputPass !== ADMIN_PASSWORD) {
-    alert("❌ Password Salah!");
-    return;
-  }
+  // Konfirmasi sederhana sebelum eksekusi
+  const konfirmasi = confirm(`Ubah status menjadi ${newStatus}?`);
+  if (!konfirmasi) return;
 
   const { error } = await supabase
     .from('peminjaman_ruangan')
     .update({ status: newStatus })
-    .eq('id', id);
+    .eq('id', id)
 
-  if (error) alert("Gagal: " + error.message);
-  else fetchData();
-};
-
-// 4. Pemicu Kamera (TIDAK PAKAI PASSWORD)
-window.pemicuUpload = (id) => {
-  activeId = id; 
-  document.getElementById('fileInput').click(); 
-};
-
-// 5. Proses Upload Foto ke Supabase
-document.getElementById('fileInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file || !activeId) return;
-
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${activeId}_${Date.now()}.${fileExt}`;
-    const filePath = `bukti/${fileName}`;
-
-    // Upload file
-    const { error: uploadError } = await supabase.storage
-      .from('bukti_foto')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    // Ambil URL publik
-    const { data: urlData } = supabase.storage
-      .from('bukti_foto')
-      .getPublicUrl(filePath);
-
-    // Update DB
-    const { error: updateError } = await supabase
-      .from('peminjaman_ruangan')
-      .update({ status: 'Selesai', bukti_foto: urlData.publicUrl })
-      .eq('id', activeId);
-
-    if (updateError) throw updateError;
-
-    alert("✅ Berhasil! Pemakaian dikonfirmasi.");
-    fetchData();
-  } catch (err) {
-    alert("Gagal: " + err.message);
+  if (error) {
+    alert('Gagal update status: ' + error.message)
+  } else {
+    // Tidak perlu panggil fetchData manual jika Real-time aktif, 
+    // tapi untuk amannya tetap panggil jika koneksi lambat.
+    fetchData() 
   }
-});
+}
 
-// Real-time listener
-supabase.channel('room-updates').on('postgres_changes', { event: '*', schema: 'public', table: 'peminjaman_ruangan' }, () => fetchData()).subscribe();
+// 4. FITUR REAL-TIME: Update otomatis jika ada data baru/berubah
+supabase
+  .channel('perubahan-data')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'peminjaman_ruangan' }, () => {
+    console.log('Ada perubahan data di database, menyegarkan tabel...');
+    fetchData();
+  })
+  .subscribe()
 
-fetchData();
+// Jalankan saat halaman pertama kali dibuka
+fetchData()
