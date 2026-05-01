@@ -26,36 +26,57 @@ function renderTable(data) {
   tableBody.innerHTML = ''
   data.forEach(item => {
     const row = document.createElement('tr')
-    
-    // Logika warna badge status
     const statusClass = item.status ? item.status.toLowerCase() : 'request';
     
     row.innerHTML = `
       <td>
         <strong>${item.nama}</strong><br>
-        <small style="color: #64748b;">${item.unit} ${item.institusi ? ' - ' + item.institusi : ''}</small>
+        <small style="color: #64748b;">${item.unit}</small>
       </td>
       <td><span style="font-weight: 500;">${item.ruangan}</span></td>
       <td><small>${item.tanggal_info}</small></td>
-      <td>${item.jam_mulai.substring(0,5)} - ${item.jam_selesai.substring(0,5)}</td>
       <td>
         <span class="status-badge status-${statusClass}">${item.status}</span>
       </td>
       <td>
         <div class="action-group">
-          ${item.status === 'Request' ? `
-            <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')" title="Approve">
-              <i class="fa-solid fa-check"></i>
-            </button>
-            <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')" title="Reject">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          ` : `<small style="color: #cbd5e1;">Selesai</small>`}
+          ${renderActionButton(item)}
         </div>
       </td>
     `
     tableBody.appendChild(row)
   })
+}
+
+// Fungsi pembantu untuk menentukan tombol apa yang muncul
+function renderActionButton(item) {
+  if (item.status === 'Request') {
+    return `
+      <button class="btn btn-approve" onclick="updateStatus('${item.id}', 'Booking')" title="Approve">
+        <i class="fa-solid fa-check"></i> Approve
+      </button>
+      <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')" title="Reject">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+  } 
+  
+  if (item.status === 'Booking') {
+    return `
+      <button class="btn" style="background:#8b5cf6; color:white;" onclick="bukaUploadFoto('${item.id}')">
+        <i class="fa-solid fa-camera"></i> Bukti Foto
+      </button>
+      <button class="btn btn-reject" onclick="updateStatus('${item.id}', 'Cancel')">
+        Cancel
+      </button>
+    `;
+  }
+
+  if (item.status === 'Selesai') {
+    return `<small style="color:#16a34a; font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Terverifikasi</small>`;
+  }
+
+  return `<small style="color:#94a3b8;">No Action</small>`;
 }
 
 // 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
