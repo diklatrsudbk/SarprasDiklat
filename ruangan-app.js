@@ -5,7 +5,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 const tableBody = document.getElementById('table-body')
-
+const ADMIN_PASSWORD = "diklatrsudbk";
 // 1. Fungsi Mengambil Data
 async function fetchData() {
   const { data, error } = await supabase
@@ -59,24 +59,36 @@ function renderTable(data) {
 }
 
 // 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
-window.updateStatus = async (id, newStatus) => {
-  // Konfirmasi sederhana sebelum eksekusi
-  const konfirmasi = confirm(`Ubah status menjadi ${newStatus}?`);
-  if (!konfirmasi) return;
+// Konfigurasi Password Admin (Ganti sesuai keinginan Anda)
+const ADMIN_PASSWORD = "sarprasrahasia"; 
 
+window.updateStatus = async (id, newStatus) => {
+  // 1. Minta Password
+  const inputPass = prompt(`Konfirmasi ${newStatus}. Masukkan Password Admin:`);
+
+  // 2. Cek apakah password kosong atau dibatalkan
+  if (inputPass === null) return; 
+
+  // 3. Validasi Password
+  if (inputPass !== ADMIN_PASSWORD) {
+    alert("❌ Password Salah! Anda tidak memiliki akses.");
+    return;
+  }
+
+  // 4. Jika password benar, lanjutkan proses ke Supabase
   const { error } = await supabase
     .from('peminjaman_ruangan')
     .update({ status: newStatus })
-    .eq('id', id)
+    .eq('id', id);
 
   if (error) {
-    alert('Gagal update status: ' + error.message)
+    alert('Gagal update status: ' + error.message);
   } else {
-    // Tidak perlu panggil fetchData manual jika Real-time aktif, 
-    // tapi untuk amannya tetap panggil jika koneksi lambat.
-    fetchData() 
+    // Beri notifikasi sukses dengan gaya yang lebih manis
+    console.log(`Status berhasil diubah ke: ${newStatus}`);
+    fetchData(); // Segarkan tabel
   }
-}
+};
 
 // 4. FITUR REAL-TIME: Update otomatis jika ada data baru/berubah
 supabase
