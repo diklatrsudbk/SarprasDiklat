@@ -59,8 +59,7 @@ function renderTable(data) {
 }
 
 // 3. Fungsi Update Status (Global agar bisa dipanggil tombol)
-// Konfigurasi Password Admin (Ganti sesuai keinginan Anda)
-const ADMIN_PASSWORD = "sarprasrahasia"; 
+// Konfigurasi Password Admin (Ganti sesuai keinginan Anda) 
 
 window.updateStatus = async (id, newStatus) => {
   // 1. Minta Password
